@@ -48,7 +48,7 @@ namespace Authentication.Controllers
         [HttpGet("profile")]
         public IActionResult Profile()
         {
-            return Ok("protected");
+            return Ok(User.Identity?.Name);
         }
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken(RefreshToken refreshToken)
@@ -66,6 +66,11 @@ namespace Authentication.Controllers
 
 
         }
+        [HttpGet("test")]
+        public  IActionResult ExceptionTesting()
+        {
+            throw new Exception("custom exceptiom");
+        }
         private string GenerateToken(User user)
         {
             var claims = new[]
@@ -76,7 +81,7 @@ namespace Authentication.Controllers
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("my-jwt-secret-key-12345-this-is-for-demo-2006"));
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(claims: claims, expires: DateTime.Now.AddMinutes(1), signingCredentials: cred);
+            var token = new JwtSecurityToken(claims: claims, expires: DateTime.Now.AddHours(1), signingCredentials: cred);
             return new JwtSecurityTokenHandler().WriteToken(token);
 
         }
