@@ -14,57 +14,58 @@ namespace Authentication.Services
         
         public async Task<List<TaskItem>> GetAllTask()
         {
-            return tasks;
+            return await Task.FromResult<List<TaskItem>>(tasks);
         }
 
         public async Task<bool> AddTask(TaskItem task)
         {
-            
-            foreach(var T in tasks)
+            if(tasks.Any(t=>t.Id == task.Id))
             {
-                if(T.Id == task.Id)
-                {
-                    return false;
-                }
+                return await Task.FromResult<bool>(false);
             }
             tasks.Add(task);
-            return true;
+            return await Task.FromResult<bool>(true);
         } 
 
         public async Task<bool> UpdateTask(int id,TaskItem updatedTask)
         {
-            
-            bool isFound = false;
-            foreach(var task in tasks)
+
+            var task = tasks.FirstOrDefault(t => t.Id == id);
+            if(task != null)
             {
-                if(task.Id == id)
-                {
-                    task.Title = updatedTask.Title;
-                    task.Description = updatedTask.Description;
-                    task.Status = updatedTask.Status;
-                    isFound = true;
-                    break;
-                }
+                task.Title = updatedTask.Title;
+                task.Description = updatedTask.Description;
+                task.Status = updatedTask.Status;
+                return await Task.FromResult<bool>(true);
             }
-            if (isFound)
-            {
-                return true;
-            }
-            return false;
+            return await Task.FromResult<bool>(false);
         }
         public async Task<bool> DeleteTask(int id)
         {
             if (id <= 0)
             {
-                return false;
+                return await Task.FromResult<bool>(false);
             }
             var task = tasks.FirstOrDefault(s => s.Id == id);
             if(task == null)
             {
-                return false;
+                return await Task.FromResult<bool> (false);
             }
             tasks.Remove(task);
-            return true;
+            return await Task.FromResult<bool>(true);
+        }
+        public async Task<List<TaskItem>> GetTasksByStatus(string Status = "completed")
+        {
+            var result = tasks.Where(t => t.Status == Status).ToList();
+            return await Task.FromResult<List<TaskItem>>(result);
+        }
+        public async Task<List<TaskItem>> GetTaskByPage(int pageNumber, int pageSize)
+        {
+            var result = tasks
+                        .Skip((pageNumber - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+            return await Task.FromResult<List<TaskItem>>(result);
         }
 
     }

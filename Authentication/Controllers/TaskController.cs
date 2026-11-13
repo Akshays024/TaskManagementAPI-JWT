@@ -66,5 +66,31 @@ namespace Authentication.Controllers
             return NoContent();
 
         }
+        [Authorize]
+        [HttpGet("search")]
+        public async Task<IActionResult> GetTaskByStatus(string status="completed")
+        {
+            var result =await _task.GetTasksByStatus(status);
+            if(result.Count == 0)
+            {
+                return NotFound("task not found");
+            }
+            return Ok(result);
+        }
+        [Authorize]
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetTaskByPage(int pageNumber,int pageSize)
+        {
+            if(pageNumber<=0 || pageSize <= 0)
+            {
+                return BadRequest("page number and size must be greater than 0");
+            }
+            var result = await _task.GetTaskByPage(pageNumber, pageSize);
+            if(result.Count == 0)
+            {
+                return NotFound("products not found");
+            }
+            return Ok(result);
+        }
     }
 }
